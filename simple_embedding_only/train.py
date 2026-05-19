@@ -1,6 +1,8 @@
 """
-Simplified F-Hash: Training
-Trains a single-level 3D hash encoding + MLP on the full volume.
+Embedding-Only F-Hash: Training
+Trains a single-level 3D hash encoding + minimal linear layer on the full volume.
+After training, saves the learned embedding table as a numpy file.
+The linear layer is discarded; only the embedding table is kept.
 """
 
 import os
@@ -9,7 +11,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
-from model import SimpleHash
+from model import EmbeddingOnlyModel
 
 
 class VolumeDataset(Dataset):
@@ -42,23 +44,21 @@ class VolumeDataset(Dataset):
 
 if __name__ == "__main__":
     # --- Configuration ---
-# size of feature grid for hash embedding (can be smaller than data, full size of data is 128x128x256
-#     res_x = 128         # grid resolution (x)
-#     res_y = 128         # grid resolution (y)
-#     res_z = 256         # grid resolution (z)
+    # size of feature grid for hash embedding (can be smaller than data, full size of data is 128x128x256)
     res_x = 64          # grid resolution (x)
     res_y = 64          # grid resolution (y)
     res_z = 128         # grid resolution (z)
     n_features = 2      # features per hash table entry
-    hidden_dim = 64     # MLP hidden layer width
     batch_size = 2_000_000
     learning_rate = 0.01
     num_epochs = 120
     num_workers = 16
     checkpoint_dir = "models"
+    output_dir = "output"
 
     # --- Setup ---
     os.makedirs(checkpoint_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Device: {device}")
@@ -71,9 +71,9 @@ if __name__ == "__main__":
     )
 
     # Create model
-    model = SimpleHash(
+    model = EmbeddingOnlyModel(
         res_x=res_x, res_y=res_y, res_z=res_z,
-        n_features=n_features, hidden_dim=hidden_dim
+        n_features=n_features
     )
     model.to(device)
 
@@ -129,3 +129,13 @@ if __name__ == "__main__":
 
     total_time = time.time() - start_time_total
     print(f"\nTotal training time: {total_time:.2f}s")
+
+    # --- Save embedding table ---
+    embedding_table = model.encoder.embedding.weight.data.cpu().numpy()
+    embedding_path = os.path.join(output_dir, "embedding_table.npy")
+    np.save(embedding_path, embedding_table)
+
+    print(f"\nEmbedding table shape: {embedding_table.shape}")
+    print(f"  (table_size={res_x * res_y * res_z}, n_features={n_features})")
+    print(f"  min={embedding_table.min():.6f}, max={embedding_table.max():.6f}")
+    print(f"Saved embedding table to {embedding_path}")

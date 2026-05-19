@@ -45,9 +45,13 @@ def predict(model, coords, device, batch_size=2_000_000):
 
 if __name__ == "__main__":
     # --- Configuration ---
-    res_x = 128
-    res_y = 128
-    res_z = 256
+# size of feature grid for hash embedding (can be smaller than data, full size of data is 128x128x256
+#     res_x = 128
+#     res_y = 128
+#     res_z = 256
+    res_x = 64
+    res_y = 64
+    res_z = 128
     n_features = 2
     hidden_dim = 64
     num_epochs = 120
