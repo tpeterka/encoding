@@ -1,10 +1,7 @@
 ## Encoding: simplified single-resolution feature grid encoded in a vector database
 
-Hash encoding derived from F-Hash: Feature-Based Hash Design for Time-Varying Volume Visualization via Multi-Resolution Tesseract Encoding
-
-[Github Page](https://github.com/sunjianxin/F-Hash), 
-[ArXiv](https://arxiv.org/abs/2507.03836),
-[Publishers' Version](https://ieeexplore.ieee.org/abstract/document/11261881)
+Feature grid hash encoding is a simplified single-resolution 3D version of
+[F-Hash](https://github.com/sunjianxin/F-Hash)
 
 ### 1. Setup
 
@@ -31,10 +28,10 @@ python download_data.py
 ```
 ### 4. Run
 ```bash
-cd simple_embedding_faiss
+cd simple_faiss
 python3 prepare_data.py
 python3 train.py <timestep>
 python3 vector_db.py <timestep>
-python3 patch_similarity <timestep 0> <timestep 1>
+python3 patch_similarity <timestep_a> <timestep_b>
 
 ```

@@ -1,8 +1,6 @@
 """
-Embedding-Only F-Hash: Training
-Trains a single-level 3D hash encoding + minimal linear layer on the full volume.
-After training, saves the learned embedding table as a numpy file.
-The linear layer is discarded; only the embedding table is kept.
+Simplified F-Hash: Training
+Trains a single-level 3D hash encoding + MLP on the full volume.
 """
 
 import os
@@ -11,12 +9,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
-from model import EmbeddingOnlyModel
+from model import SimpleHash
 import argparse
 
 class VolumeDataset(Dataset):
     """
-    Loads one timestep of training data from the binary files produced by prepare_data.py.
+    Loads training data from the binary file produced by prepare_data.py.
     Each sample is (xyz, value) where xyz is a 3D coordinate in [-1,1]^3 and value is a scalar in [0,1]
     """
 
@@ -44,17 +42,18 @@ class VolumeDataset(Dataset):
 
 if __name__ == "__main__":
     # --- Configuration ---
-    # size of feature grid for hash embedding (can be smaller than data, full size of data is 128x128x256)
-    res_x = 128          # grid resolution (x) (grid points, not spaces)
-    res_y = 128          # grid resolution (y)
-    res_z = 256          # grid resolution (z)
-#     res_x = 64          # grid resolution (x) (grid points, not spaces)
+# size of feature grid for hash embedding (can be smaller than data, full size of data is 128x128x256
+    res_x = 128         # grid resolution (x)
+    res_y = 128         # grid resolution (y)
+    res_z = 256         # grid resolution (z)
+#     res_x = 64          # grid resolution (x)
 #     res_y = 64          # grid resolution (y)
 #     res_z = 128         # grid resolution (z)
     n_features = 2      # features per hash table entry
+    hidden_dim = 64     # MLP hidden layer width
     batch_size = 2_000_000
     learning_rate = 0.01
-    num_epochs = 80
+    num_epochs = 60
     num_workers = 16
     checkpoint_dir = "models"
     output_dir = "output"
@@ -81,9 +80,9 @@ if __name__ == "__main__":
     )
 
     # Create model
-    model = EmbeddingOnlyModel(
+    model = SimpleHash(
         res_x=res_x, res_y=res_y, res_z=res_z,
-        n_features=n_features
+        n_features=n_features, hidden_dim=hidden_dim
     )
     model.to(device)
 
@@ -130,7 +129,7 @@ if __name__ == "__main__":
         elapsed = time.time() - start_time
 
         # Save checkpoint every epoch
-#         ckpt_path = os.path.join(checkpoint_dir, f"timestep_{timestep}_epoch_{epoch}.pt")
+#         ckpt_path = os.path.join(checkpoint_dir, f"{epoch}.pt")
 #         torch.save(model.state_dict(), ckpt_path)
 
         print(f"Epoch {epoch:3d}/{num_epochs}, "

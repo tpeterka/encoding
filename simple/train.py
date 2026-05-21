@@ -43,17 +43,17 @@ class VolumeDataset(Dataset):
 if __name__ == "__main__":
     # --- Configuration ---
 # size of feature grid for hash embedding (can be smaller than data, full size of data is 128x128x256
-#     res_x = 128         # grid resolution (x)
-#     res_y = 128         # grid resolution (y)
-#     res_z = 256         # grid resolution (z)
-    res_x = 64          # grid resolution (x)
-    res_y = 64          # grid resolution (y)
-    res_z = 128         # grid resolution (z)
+    res_x = 128         # grid resolution (x)
+    res_y = 128         # grid resolution (y)
+    res_z = 256         # grid resolution (z)
+#     res_x = 64          # grid resolution (x)
+#     res_y = 64          # grid resolution (y)
+#     res_z = 128         # grid resolution (z)
     n_features = 2      # features per hash table entry
     hidden_dim = 64     # MLP hidden layer width
     batch_size = 2_000_000
     learning_rate = 0.01
-    num_epochs = 120
+    num_epochs = 80
     num_workers = 16
     checkpoint_dir = "models"
 
@@ -120,12 +120,26 @@ if __name__ == "__main__":
         elapsed = time.time() - start_time
 
         # Save checkpoint every epoch
-        ckpt_path = os.path.join(checkpoint_dir, f"{epoch}.pt")
-        torch.save(model.state_dict(), ckpt_path)
+#         ckpt_path = os.path.join(checkpoint_dir, f"{epoch}.pt")
+#         torch.save(model.state_dict(), ckpt_path)
 
         print(f"Epoch {epoch:3d}/{num_epochs}, "
-              f"loss={avg_loss:.6f}, "
+              f"loss={avg_loss:.8f}, "
               f"time={elapsed:.2f}s")
 
     total_time = time.time() - start_time_total
     print(f"\nTotal training time: {total_time:.2f}s")
+
+    # checkpoint the model
+    ckpt_path = os.path.join(checkpoint_dir, f"model_{timestep}.pt")
+    torch.save(model.state_dict(), ckpt_path)
+
+    # --- Save embedding table ---
+    embedding_table = model.encoder.embedding.weight.data.cpu().numpy()
+    embedding_path = os.path.join(output_dir, f"embedding_table_{timestep}.npy")
+    np.save(embedding_path, embedding_table)
+
+    print(f"\nEmbedding table shape: {embedding_table.shape}")
+    print(f"  (table_size={res_x * res_y * res_z}, n_features={n_features})")
+    print(f"  min={embedding_table.min():.6f}, max={embedding_table.max():.6f}")
+    print(f"Saved embedding table to {embedding_path}")
