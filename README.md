@@ -11,7 +11,7 @@ It is recommended to install dependencies in a virtual Python environment.
 cd /path/to/encoding
 python3 -m venv .venv               # first time only
 source .venv/bin/activate
-pip3 install torch tqdm faiss-cpu   # first time only
+pip3 install torch tqdm faiss-cpu vtk   # first time only
 ```
 
 ### 2. Create the `data/argon_bubble` directory
