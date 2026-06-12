@@ -185,7 +185,8 @@ if __name__ == "__main__":
     timestep = args.timestep
 
     build_patch_database(timestep=timestep,
-        data_path=f"data/train_{timestep}.bin",
+#         data_path=f"data/train_{timestep}.bin",
+        data_path=f"../data/argon_bubble/raw/{timestep}.bin",
         output_dir="output",
         res_x=res_x,
         res_y=res_y,
