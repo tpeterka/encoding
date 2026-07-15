@@ -1,8 +1,5 @@
 ## Encoding: Embedding various representations of a scientific dataset in a vector database
 
-Feature grid hash encoding is a simplified single-resolution 3D version of
-[F-Hash](https://github.com/sunjianxin/F-Hash)
-
 ### 1. Setup
 
 It is recommended to install dependencies in a virtual Python environment.
@@ -19,13 +16,17 @@ The following directories need to be manually created:
 ```
 encoding
 └── data
-   └── argon_bubble  (Raw dataset: .dat)
+   └── argon_bubble
+      └── raw
 ```
 ### 3. Download the data
-Download the Argon Bubble toy dataset, put all the extracted frames under encoding/data/argon_bubble folder in above directory tree.
-```bash
-python download_data.py
-```
+
+Download several timesteps of the Argon Bubble dataset under encoding/data/argon_bubble/raw folder in above directory tree.
+For each timestep, at a minimum there must be a <timestep>.bin binary data file and a <timestep>.txt text file.
+The text file only contains the total data size, which is 4194304.
+All timesteps are the same size (128x128x256 = 4194304).
+Optionally one may also download <timestep>.vtk files for visualization, although these are not used by any of the scripts in this repository.
+
 ### 4. Run
 
 There are different versions for creating a vector database (FAISS) from a feature grid, directly from the raw dataset input points, and from the control points of an MFA model of the dataset. See the
