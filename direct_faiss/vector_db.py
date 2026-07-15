@@ -1,7 +1,7 @@
 """
 FAISS Vector Database for Raw Data Patches
 
-Loads raw scalar data from a binary file (data/train_<timestep>.bin),
+Loads raw scalar data from a binary file (<timestep>.bin),
 extracts overlapping 4x4x4 patches of data values, and stores them
 in a FAISS vector database. Each patch vector contains one scalar value
 per grid point (64 elements for a 4x4x4 patch).
@@ -37,7 +37,7 @@ def grid_index_to_coord(ix, iy, iz, res_x, res_y, res_z):
 
 
 def build_patch_database(timestep=0,
-    data_path="data/train_0.bin",
+    data_path="data/0.bin",
     output_dir="output",
     res_x=128,
     res_y=128,
@@ -185,7 +185,6 @@ if __name__ == "__main__":
     timestep = args.timestep
 
     build_patch_database(timestep=timestep,
-#         data_path=f"data/train_{timestep}.bin",
         data_path=f"../data/argon_bubble/raw/{timestep}.bin",
         output_dir="output",
         res_x=res_x,

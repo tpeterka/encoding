@@ -1,4 +1,4 @@
-## Encoding: simplified single-resolution feature grid encoded in a vector database
+## Encoding: Embedding various representations of a scientific dataset in a vector database
 
 Feature grid hash encoding is a simplified single-resolution 3D version of
 [F-Hash](https://github.com/sunjianxin/F-Hash)
@@ -27,11 +27,13 @@ Download the Argon Bubble toy dataset, put all the extracted frames under encodi
 python download_data.py
 ```
 ### 4. Run
-```bash
-cd simple_faiss
-python3 prepare_data.py
-python3 train.py <timestep>
-python3 vector_db.py <timestep>
-python3 patch_similarity <timestep_a> <timestep_b>
 
-```
+There are different versions for creating a vector database (FAISS) from a feature grid, directly from the raw dataset input points, and from the control points of an MFA model of the dataset. See the
+following subdirectories and follow the READMEs there:
+- `simple_faiss`: FAISS vector database from a full-resolution feature grid
+- `direct_faiss`: FAISS vector database direct from dataset raw input points
+- `mfa_faiss:     FAISS vector database from control points of MFA model
+
+In each case, the vectors are constructed from 4x4x4 patches of inputs (feature grid points, raw data points, control points), concatenating the 64 patch vertices into a 64-element vector. The number
+of vectors depends on the number of patches, which differs depending on the number of inputs.
+

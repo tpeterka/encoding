@@ -19,8 +19,8 @@ class VolumeDataset(Dataset):
     """
 
     def __init__(self, data_dir="data", timestep=0):
-        meta_path = os.path.join(data_dir, f"train_{timestep}.txt")
-        bin_path = os.path.join(data_dir, f"train_{timestep}.bin")
+        meta_path = os.path.join(data_dir, f"{timestep}.txt")
+        bin_path = os.path.join(data_dir, f"{timestep}.bin")
 
         with open(meta_path, "r") as f:
             self.size = int(f.read())
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     print(f"Device: {device}")
 
     # Load data
-    dataset = VolumeDataset("data", timestep)
+    dataset = VolumeDataset("../data/argon_bubble/raw", timestep)
     dataloader = DataLoader(
         dataset, batch_size=batch_size, shuffle=True,
         num_workers=num_workers, pin_memory=True
