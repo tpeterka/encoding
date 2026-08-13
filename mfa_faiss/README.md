@@ -20,7 +20,7 @@ source ./load-env.sh
 
 Example of `myconfig` script (tailor to your own machine and installation) for CMake:
 
-```bash
+```
 #!/bin/bash
 
 rm CMakeCache.txt
@@ -40,7 +40,7 @@ make -j8 install
 
 Build:
 
-```bash
+```
 cd /path/to/encoding
 mkdir build
 cd build
@@ -50,7 +50,7 @@ cd mfa
 
 Run:
 
-```bash
+```
 # 32X compression
 ./gridded_3d -f ../../data/argon_bubble/raw/0.bin -g 2 -v 64 -v 64 -v 128
 mv approx.mfa /path/to/encoding/data/argon_bubble/mfa/0-64x64x128-approx.mfa
@@ -62,7 +62,7 @@ mv approx.mfa /path/to/encoding/data/argon_bubble/mfa/0-32x32x64-approx.mfa
 
 ### Embedding MFA control points in a vector database
 
-```bash
+```
 cd /path/to/encoding/mfa_faiss
 python3 mfa/vector_db.py --infile ../data/argon_bubble/mfa/0-32x32x64-approx.mfa
 python3 mfa/vector_db.py --infile ../data/argon_bubble/mfa/0-64x64x128-approx.mfa
@@ -74,7 +74,7 @@ Outputs of vector databases encoded from control points are in `path/to/encoding
 # Computing patch similarity for control-point encoded vector embeddings
 
 
-```bash
+```
 cd ~/software/encoding/mfa_faiss
 python3 patch_similarity.py <timestep a> <timestep b> --resolution "32x32x64"
 python3 patch_similarity.py <timestep a> <timestep b> --resolution "64x64x128"

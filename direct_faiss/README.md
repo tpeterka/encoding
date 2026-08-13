@@ -4,7 +4,7 @@ Patches of 4x4x4 data points are concatenated into a 64-element vector. The numb
 128x128x256.
 
 
-```bash
+```
 cd direct_faiss
 python3 vector_db.py <timestep>
 python3 patch_similarity <timestep_a> <timestep_b>

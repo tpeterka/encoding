@@ -11,23 +11,22 @@ source .venv/bin/activate
 pip3 install torch tqdm faiss-cpu vtk   # first time only
 ```
 
-### 2. Create the `data/argon_bubble` directory
-The following directories need to be manually created:
+### 2. Input data
+The following data directories are included
 ```
 encoding
 └── data
    └── argon_bubble
       └── raw
 ```
-### 3. Download the data
 
-Download several timesteps of the Argon Bubble dataset under encoding/data/argon_bubble/raw folder in above directory tree.
-For each timestep, at a minimum there must be a <timestep>.bin binary data file and a <timestep>.txt text file.
+Several timesteps of the Argon Bubble dataset are included under encoding/data/argon_bubble/raw folder in above directory tree.
+Each timestep consists of a <timestep>.bin binary data file and a <timestep>.txt text file.
 The text file only contains the total data size, which is 4194304.
 All timesteps are the same size (128x128x256 = 4194304).
-Optionally one may also download <timestep>.vtk files for visualization, although these are not used by any of the scripts in this repository.
+Optionally there are also <timestep>.vtk files for visualization, although these are not used by any of the scripts in this repository.
 
-### 4. Run
+### 3. Run
 
 There are different versions for creating a vector database (FAISS) from a feature grid, directly from the raw dataset input points, and from the control points of an MFA model of the dataset. See the
 following subdirectories and follow the READMEs there:
