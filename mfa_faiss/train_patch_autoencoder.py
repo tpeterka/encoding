@@ -6,7 +6,7 @@ import torch.utils.data
 import time
 import diy
 import mfa
-from vector_db import extract_block_patches
+from patch_data import extract_block_patches
 from patch_model import PatchAutoencoder
 
 def parse_args():
@@ -246,15 +246,15 @@ def main():
     torch.save(ckpt_dict, ckpt_path)
 
     # sanity check: latent shape and reconstruction loss on one validation batch
-    model.eval()
-    with torch.no_grad():
-        sample_batch = val_tensor[: min(8, len(val_tensor))].to(device)
-        latent = model.encode(sample_batch)
-        recon = model(sample_batch)
-        sample_loss = criterion(recon, sample_batch).item()
-    print(f"batch shape {sample_batch.shape}, "
-        f"latent shape {latent.shape}, "
-        f"sample loss {sample_loss:.8f}")
+#     model.eval()
+#     with torch.no_grad():
+#         sample_batch = val_tensor[: min(8, len(val_tensor))].to(device)
+#         latent = model.encode(sample_batch)
+#         recon = model(sample_batch)
+#         sample_loss = criterion(recon, sample_batch).item()
+#     print(f"batch shape {sample_batch.shape}, "
+#         f"latent shape {latent.shape}, "
+#         f"sample loss {sample_loss:.8f}")
 
 if __name__ == "__main__":
     main()
