@@ -68,14 +68,12 @@ mv approx.mfa /path/to/encoding/data/argon_bubble/mfa/0-64x64x128-approx.mfa
 mv approx.mfa /path/to/encoding/data/argon_bubble/mfa/0-32x32x64-approx.mfa
 ```
 
-### Embedding MFA control points in a vector database using plain concatenation as the embedding model
+### Embedding MFA control points in a vector database using plain concatenation
 
 ```
-cd /path/to/encoding
-source .venv/bin/activate
 cd /path/to/encoding/mfa_faiss
-python3 mfa/concat_vector_db.py --infile ../data/argon_bubble/mfa/0-32x32x64-approx.mfa
-python3 mfa/concat_vector_db.py --infile ../data/argon_bubble/mfa/0-64x64x128-approx.mfa
+python3 concat_vector_db.py --infile ../data/argon_bubble/mfa/0-32x32x64-approx.mfa
+python3 concat_vector_db.py --infile ../data/argon_bubble/mfa/0-64x64x128-approx.mfa
 # similar for timesteps 0,1,119,120,239,240
 ```
 
@@ -83,44 +81,134 @@ Outputs of vector databases encoded from control points are in `path/to/encoding
 
 Additionally, the bounds of the patches are in `path/to/encoding/mfa_faiss/output/mfa_patch_ctrl_bounds_<timestep>-<ctrl_pt_resolution>-approx.npy`
 
+### Training an autoencoder as the embedding model for MFA control points
+
+```
+cd /path/to/encoding/mfa_faiss
+# single file
+python3 train_patch_autoencoder.py --infile ../data/argon_bubble/mfa/0-32x32x64-approx.mfa
+python3 train_patch_autoencoder.py --infile ../data/argon_bubble/mfa/0-32x32x64-approx.mfa
+# multiple files
+python3 train_patch_autoencoder.py --infile ../data/argon_bubble/mfa/0-64x64x128-approx.mfa --infile ../data/argon_bubble/mfa/1-64x64x128-approx.mfa --infile ../data/argon_bubble/mfa/119-64x64x128-approx.mfa --infile ../data/argon_bubble/mfa/120-64x64x128-approx.mfa --infile ../data/argon_bubble/mfa/239-64x64x128-approx.mfa --infile ../data/argon_bubble/mfa/240-64x64x128-approx.mfa
+```
+
+Output of the training is a model checkpoint file in `path/to/encoding/mfa_faiss/output/mfa_patch_autoencoder.pt
+
 ### Embedding MFA control points in a vector database using autoencoder as the embedding model
 
 ```
-cd /path/to/encoding
-source .venv/bin/activate
 cd /path/to/encoding/mfa_faiss
 python3 embed_vector_db.py \
   --infile ../data/argon_bubble/mfa/0-64x64x128-approx.mfa \
   --encoder-ckpt output/mfa_patch_autoencoder.pt
 ```
 
-### Embedding MFA control points in a vector database using autoencoder as the embedding model
-
-```
-cd /path/to/encoding
-source .venv/bin/activate
-cd /path/to/encoding/mfa_faiss
-# single file
-python3 mfa_faiss/train_patch_autoencoder.py --infile ../data/argon_bubble/mfa/0-32x32x64-approx.mfa
-python3 mfa_faiss/train_patch_autoencoder.py --infile ../data/argon_bubble/mfa/0-32x32x64-approx.mfa
-# multiple files
-python3 train_patch_autoencoder.py --infile ../data/argon_bubble/mfa/0-64x64x128-approx.mfa --infile ../data/argon_bubble/mfa/1-64x64x128-approx.mfa --infile ../data/argon_bubble/mfa/119-64x64x128-approx.mfa --infile ../data/argon_bubble/mfa/120-64x64x128-approx.mfa --infile ../data/argon_bubble/mfa/239-64x64x128-approx.mfa --infile ../data/argon_bubble/mfa/240-64x64x128-approx.mfa
-```
-
 Outputs of vector databases encoded from control points are in `path/to/encoding/mfa_faiss/output/mfa_patch_latents_<timestep>-<ctrl_pt_resolution>-approx.index`
 
 Additionally, the bounds of the patches are in `path/to/encoding/mfa_faiss/output/mfa_patch_ctrl_bounds_<timestep>-<ctrl_pt_resolution>-approx.npy`
 
-# Computing patch similarity for control-point encoded vector embeddings
+# Computing patch similarity across two timesteps for control-point encoded vector embeddings
 
+Computes pair-wise distance between corresponding patches in two timesteps and one aggregate L2 norm distance over those distances.
 
 ```
-cd /path/to/encoding
-source .venv/bin/activate
 cd /path/to/encoding/mfa_faiss
-python3 patch_similarity.py <timestep a> <timestep b> --resolution "32x32x64" --mode concat
 python3 patch_similarity.py <timestep a> <timestep b> --resolution "64x64x128" --mode concat
-python3 patch_similarity.py <timestep a> <timestep b> --resolution "32x32x64" --mode embed
 python3 patch_similarity.py <timestep a> <timestep b> --resolution "64x64x128" --mode embed
 ```
+
+# Computing patch similarity across patches within a single timestep for control-point encoded vector embeddings
+
+Given a single patch as the reference, compute distances from all other patches in the timestep.
+
+```
+cd /path/to/encoding/mfa_faiss
+python3 space_patch_similarity.py <timestep> --resolution "64x64x128" --reference-point <gid,ix,iy,iz> --mode concat
+python3 space_patch_similarity.py <timestep> --resolution "64x64x128" --reference-point <gid,ix,iy,iz> --mode embed
+```
+
+Outputs of patch distances are in `path/to/encoding/mfa_faiss/output/mfa_space_patch_latent_distances_<timestep>-<ctrl_pt_resolution>-approx.npy`
+
+Additionally, the bounds and other metadata of the patches are in `path/to/encoding/mfa_faiss/output/mfa_space_patch_latent_distances_<timestep>-<ctrl_pt_resolution>-approx.npz`
+
+# Converting patch similarity distances across patches in a single timestep from numpy to VTK for visualization
+
+```
+cd /path/to/encoding/mfa_faiss
+python3 space_patch_similarity_to_vtk.py <output_dir>/mfa_space_patch_latent_distances_<timestep>-<ctrl_pt_resolution>-approx.npz
+
+Output is saved to <output_dir>/mfa_space_patch_latent_distances_<timestep>-<ctrl_pt_resolution>-approx_gid0.vtk as a structured grid of scalar values, one per patch.
+
+# Diagnostic tools for debugging
+
+## Computing patch norms of vectors across patches within a single timestep
+
+Given a single timestep, compute norms of vector embeddings for all patches.
+
+Generate norms:
+```
+cd /path/to/encoding/mfa_faiss
+python3 patch_vector_norms.py <timestep> --resolution 64x64x128 --mode concat
+python3 patch_vector_norms.py <timestep> --resolution 64x64x128 --mode embed
+```
+
+Output files are in output/mfa_patch_norms_<timestep>-64x64x128-approx.npy, .npz for concat mode and output/mfa_patch_latent_norms_<timestep>-64x64x128-approx.npy, .npz for embed mode.
+
+
+Convert to VTK:
+```
+cd /path/to/encoding/mfa_faiss
+python3 space_patch_similarity_to_vtk.py output/mfa_patch_norms_<timestep>-64x64x128-approx.npz
+python3 space_patch_similarity_to_vtk.py output/mfa_patch_latent_norms_<timestep>-64x64x128-approx.npz
+```
+
+Output files are in output/mfa_patch_norms_0-64x64x128-approx_gid0.vtk for concat mode and in output/mfa_patch_latent_norms_0-64x64x128-approx_gid0.vtk for embed mode.
+
+<!--
+## Converting patch similarity distances in .npy to .raw for ParaView input
+
+```
+cd /path/to/encoding/mfa_faiss
+python3 npy_to_raw.py <output_dir>/mfa_space_patch_latent_distances_<timestep>-<ctrl_pt_resolution>-approx.npy
+```
+
+Output is saved to <output_dir>/mfa_space_patch_latent_distances_<timestep>-<ctrl_pt_resolution>-approx.raw as a flat array of scalar values, one per patch.
+Upon reading into ParaView, set the data type to float, the byte order to little endian (for macbook, eg.), and the dimensions to the number of patches in each dimension (eg., 21, 21, 42)
+
+However, be aware that the image reader in ParaView for .raw files expects Fortran-order (x-fastest) while our .npy file is written in C-order (z-fastest), so the results will be transposed. The
+dimensions in the file properties would need to be swapped, and a transpose filter would need to be applied in ParaView to view a correct image.
+The .raw file converter is a diagnostic debugging tool only, not useful in most cases since its expected order does not align with the file order.
+-->
+
+## Converting patch similarity distances in .npy to .vtk for ParaView input
+
+There is also a diagnostic script that converts .npy to .vtk with hard-coded data type, byte order, and patch dimensions:
+```
+cd /path/to/encoding/mfa_faiss
+python3 mfa_faiss/npy_to_vtk.py <output_dir>/mfa_space_patch_latent_distances_<timestep>-<ctrl_pt_resolution>-approx.npy
+```
+
+## Inspecting and querying .npz metadata file
+
+```
+python3 mfa_faiss/inspect_space_patch_similarity.py <output_dir>/mfa_space_patch_latent_distances_<timestep>-<ctrl_pt_resolution>-approx.npz --query-point <gid,ix,iy,iz> # optional query point
+cd /path/to/encoding/mfa_faiss
+```
+
+## Creating synthetic .npy and .npz files
+For shape 3,4,5, all values are 1 except a 0-value at index 1,2,3
+```
+python3 mfa_faiss/generate_synthetic_space_patch_data.py
+cd /path/to/encoding/mfa_faiss
+```
+Or explicitly,
+```
+cd /path/to/encoding/mfa_faiss
+python3 mfa_faiss/generate_synthetic_space_patch_data.py \
+  --shape 3,4,5 \
+  --zero-index 1,2,3 \
+  --output-dir outpu
+```
+
+Output is saved in <output_dir>/synthetic_space_patch_<grid_dims>_zero_<zero_location>.npy, .npz
 

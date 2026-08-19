@@ -34,7 +34,8 @@ def extract_block_patches(block, cp, patch_x, patch_y, patch_z):
         )
 
     # MFA linearizes control points with x fastest, then y, then z.
-    grid = ctrl_pts[:, 0].reshape((nx, ny, nz))
+#     grid = ctrl_pts[:, 0].reshape((nx, ny, nz))
+    grid = ctrl_pts[:, 0].reshape((nx, ny, nz), order="F")
 
     stride_x = patch_x - 1
     stride_y = patch_y - 1
