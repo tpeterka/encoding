@@ -15,7 +15,7 @@ spack env activate $SPACKENV
 
 spack add mpich@4
 # spack add mfa+python thread=tbb tests=false
-spack add mfa@local+python thread=tbb tests=false build_type='Debug'
+spack add mfa@local+python thread=tbb tests=false build_type='Release'
 
 # install everything in environment
 echo "installing dependencies in environment"

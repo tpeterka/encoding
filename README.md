@@ -8,7 +8,7 @@ It is recommended to install dependencies in a virtual Python environment.
 cd /path/to/encoding
 python3 -m venv .venv               # first time only
 source .venv/bin/activate
-pip3 install torch tqdm faiss-cpu vtk   # first time only
+pip3 install torch tqdm faiss-cpu vtk numpy   # first time only
 ```
 
 ### 2. Input data
@@ -32,7 +32,8 @@ There are different versions for creating a vector database (FAISS) from a featu
 following subdirectories and follow the READMEs there:
 - `simple_faiss`: FAISS vector database from a full-resolution feature grid, vectors formed by concatenation
 - `direct_faiss`: FAISS vector database direct from dataset raw input points, vectors formed by concatenation
-- `mfa_faiss:     FAISS vector database from control points of MFA model, vectors formed by concatenation or autoencoder embedding model
+- `mfa_faiss:     FAISS vector database from control points of a fixed-resolution MFA model, vectors formed by concatenation or autoencoder embedding model
+- `mfa_adaptive_faiss`: FAISS vector database from control points of an adaptive overlays MFA model, vectors formed by autoencoder embedding model
 
 In each case, the vectors are constructed from 4x4x4 patches of inputs (feature grid points, raw data points, control points), concatenating the 64 patch vertices into a 64-element vector. The number
 of vectors depends on the number of patches, which differs depending on the number of inputs.

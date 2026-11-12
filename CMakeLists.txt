@@ -102,5 +102,5 @@ set                         (libraries
                              ${CMAKE_THREAD_LIBS_INIT} )
 
 # Subdirectories
-add_subdirectory            (mfa)
+add_subdirectory            (mfa_faiss)
 

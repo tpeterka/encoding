@@ -33,8 +33,8 @@ def extract_block_patches(block, cp, patch_x, patch_y, patch_z):
             f"({patch_x}, {patch_y}, {patch_z})"
         )
 
-    # MFA linearizes control points with x fastest, then y, then z.
-#     grid = ctrl_pts[:, 0].reshape((nx, ny, nz))
+    # MFA linearizes control points with x fastest, then y, then z
+    # this is Fortran order, hence order="F"
     grid = ctrl_pts[:, 0].reshape((nx, ny, nz), order="F")
 
     stride_x = patch_x - 1
